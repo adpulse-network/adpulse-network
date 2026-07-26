@@ -3,21 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdPulse Network</title>
+    <title>AdPulse Network - Login & Publisher Portal</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fe; color: #333; text-align: center; padding: 40px 20px; }
-        .card { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #0066cc; margin-bottom: 10px; font-size: 28px; }
-        p { color: #666; font-size: 16px; margin-bottom: 20px; }
-        .badge { display: inline-block; background: #e1f5fe; color: #0288d1; padding: 8px 16px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 420px; margin: 30px auto; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        h2 { color: #0066cc; margin-bottom: 8px; text-align: center; font-size: 24px; }
+        .sub-title { text-align: center; color: #666; font-size: 13px; margin-bottom: 25px; }
+        .input-group { margin-bottom: 18px; text-align: left; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #444; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; outline: none; transition: 0.3s; }
+        input:focus { border-color: #0066cc; box-shadow: 0 0 5px rgba(0,102,204,0.3); }
+        .pass-hint { font-size: 11px; color: #888; margin-top: 4px; }
+        button { width: 100%; padding: 13px; background: #0066cc; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background: #0052a5; }
+        .toggle-link { text-align: center; margin-top: 20px; font-size: 14px; color: #0066cc; cursor: pointer; font-weight: 600; }
+        .toggle-link:hover { text-decoration: underline; }
+        
+        /* Dashboard Styling */
+        .dashboard { display: none; text-align: center; }
+        .user-welcome { font-size: 18px; margin-bottom: 20px; color: #333; }
+        .stat-card { background: #f4f8ff; border: 1px solid #d0e2ff; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .stat-card p { font-size: 14px; color: #555; }
+        .stat-card h3 { color: #0066cc; font-size: 32px; margin-top: 5px; }
+        .withdrawal-info { background: #fff8e6; border: 1px solid #ffe599; color: #8a6d3b; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 20px; }
+        .btn-logout { background: #dc3545; }
+        .btn-logout:hover { background: #c82333; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>AdPulse Network</h1>
-        <p>आपका एड नेटवर्क प्लेटफ़ॉर्म सफलतापूर्वक लाइव हो गया है!</p>
-        <div class="badge">Status: Server Online</div>
+
+    <!-- AUTHENTICATION BOX (LOGIN & SIGNUP) -->
+    <div class="container" id="authBox">
+        <h2 id="formTitle">AdPulse Network</h2>
+        <p class="sub-title" id="formSubTitle">नया अकाउंट बनाने के लिए जानकारी भरें</p>
+        
+        <form id="authForm" onsubmit="handleAuth(event)">
+            <!-- Full Name (Only for Signup) -->
+            <div class="input-group" id="nameGroup">
+                <label>पूरा नाम (Full Name):</label>
+                <input type="text" id="fullName" placeholder="अपना नाम दर्ज करें">
+            </div>
+
+            <!-- Email -->
+            <div class="input-group">
+                <label>ईमेल आईडी (Email):</label>
+                <input type="email" id="email" required placeholder="example@gmail.com">
+            </div>
+
+            <!-- Password with 8-10 Characters Rule -->
+            <div class="input-group">
+                <label>पासवर्ड (Password):</label>
+                <input type="password" id="password" required minlength="8" maxlength="10" placeholder="8 से 10 अक्षर का पासवर्ड">
+                <p class="pass-hint">* सुरक्षा नियम: पासवर्ड 8 से 10 अक्षर का होना चाहिए</p>
+            </div>
+
+            <button type="submit" id="btnSubmit">अकाउंट बनाएँ (Sign Up)</button>
+        </form>
+
+        <p class="toggle-link" onclick="toggleMode()" id="toggleText">पहले से अकाउंट है? लॉगिन करें</p>
     </div>
+
+    <!-- PUBLISHER DASHBOARD (Visible after Login) -->
+    <div class="container dashboard" id="dashboardBox">
+        <h2>AdPulse डैशबोर्ड</h2>
+        <p class="user-welcome">स्वागत है, <strong id="dispName">पब्लिशर</strong>!</p>
+
+        <div class="stat-card">
+            <p>आपकी कुल कमाई (Balance)</p>
+            <h3 id="userBalance">₹0.00</h3>
+        </div>
+
+        <div class="withdrawal-info">
+            ⚠️ <strong>पेआउट नियम:</strong> न्यूनतम विड्रॉल राशि ₹1000 है। बैलेंस ₹1000 होते ही आप UPI/बैंक ट्रांसफर ले सकते हैं।
+        </div>
+
+        <button class="btn-logout" onclick="logout()">लॉगआउट करें</button>
+    </div>
+
+    <script>
+        let isLoginMode = false;
+
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('formTitle').innerText = isLoginMode ? 'AdPulse लॉगिन' : 'AdPulse Network';
+            document.getElementById('formSubTitle').innerText = isLoginMode ? 'अपने अकाउंट में प्रवेश करें' : 'नया अकाउंट बनाने के लिए जानकारी भरें';
+            document.getElementById('nameGroup').style.display = isLoginMode ? 'none' : 'block';
+            document.getElementById('btnSubmit').innerText = isLoginMode ? 'लॉगइन करें (Login)' : 'अकाउंट बनाएँ (Sign Up)';
+            document.getElementById('toggleText').innerText = isLoginMode ? 'अकाउंट नहीं है? नया साइन-अप करें' : 'पहले से अकाउंट है? लॉगिन करें';
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const nameVal = document.getElementById('fullName').value || 'User';
+            
+            // डैशबोर्ड पर नाम अपडेट करें और स्क्रीन बदलें
+            document.getElementById('dispName').innerText = isLoginMode ? 'पब्लिशर' : nameVal;
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('dashboardBox').style.display = 'block';
+        }
+
+        function logout() {
+            document.getElementById('dashboardBox').style.display = 'none';
+            document.getElementById('authBox').style.display = 'block';
+            document.getElementById('authForm').reset();
+        }
+    </script>
 </body>
 </html>
